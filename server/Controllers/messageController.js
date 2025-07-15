@@ -146,3 +146,69 @@ export const getProjectMessages = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+export const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(messageId)) {
+      return res.status(400).json({ error: 'Invalid message ID' });
+    }
+
+    // First find the message to verify project ownership
+    const message = await Message.findById(messageId).populate('project');
+    
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    // Verify the user owns the project this message belongs to
+    const project = await Project.findOne({
+      _id: message.project._id,
+      owner: req.user._id
+    });
+
+    if (!project) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    await Message.deleteOne({ _id: messageId });
+
+    res.json({
+      success: true,
+      message: 'Message deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete all messages for a project
+export const deleteProjectMessages = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ error: 'Invalid project ID' });
+    }
+
+    // Verify the user owns this project
+    const project = await Project.findOne({
+      _id: projectId,
+      owner: req.user._id
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found or access denied' });
+    }
+
+    const result = await Message.deleteMany({ project: projectId });
+
+    res.json({
+      success: true,
+      message: `Deleted ${result.deletedCount} messages`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

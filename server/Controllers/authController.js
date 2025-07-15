@@ -180,7 +180,7 @@ export const refreshToken = async (req, res) => {
 export const logoutUser = async (req, res) => {
   try {
     const user = req.user;
-    
+
     // Increment token version to invalidate all refresh tokens
     user.tokenVersion += 1;
     await user.save();

@@ -34,7 +34,8 @@ const messageSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    index: { expires: '24h' } // Auto-delete after 24 hours
   },
   deliveredAt: {
     type: Date
@@ -43,5 +44,6 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed
   }
 });
+
 messageSchema.index({ project: 1, createdAt: -1 });
 export default mongoose.model('Message', messageSchema);
