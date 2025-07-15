@@ -6,9 +6,12 @@ import connectDB from './config/db.js';
 import authRoutes from './Routes/authRoutes.js';
 import apiKeyRoutes from './Routes/apiKeyRoutes.js';
 import projectsRoutes from './Routes/projectsRoutes.js';
+import cookieParser from 'cookie-parser';
+
 const app = express();
 
 const PORT = process.env.PORT ;
+app.use(cookieParser());
 
 app.use(express.json());
 // CORS config

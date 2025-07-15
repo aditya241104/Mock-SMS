@@ -22,10 +22,22 @@ const generateAuthToken = (user) => {
 // Generate refresh token
 const generateRefreshToken = (user) => {
   return jwt.sign(
-    { id: user._id },
+    { id: user._id, version: user.tokenVersion },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: process.env.JWT_REFRESH_EXPIRE || '7d' }
   );
+};
+
+// Set refresh token cookie
+const setRefreshTokenCookie = (res, refreshToken) => {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Adjust for cross-site in production
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/api/auth/refresh-token',
+    domain: process.env.COOKIE_DOMAIN || undefined // Set this in production
+  });
 };
 
 export const registerUser = async (req, res) => {
@@ -37,16 +49,24 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ error: 'Username or email already exists' });
     }
 
-    // Create user
-    const user = new User({ username, email, password });
+    // Create user with tokenVersion for refresh token rotation
+    const user = new User({ 
+      username, 
+      email, 
+      password,
+      tokenVersion: 0 
+    });
     
     // Generate tokens
     const token = generateAuthToken(user);
     const refreshToken = generateRefreshToken(user);
     
-    // Save refresh token to user
-    user.refreshToken = refreshToken;
+    // Save refresh token to user and increment tokenVersion
+    user.tokenVersion += 1;
     await user.save();
+
+    // Set refresh token in cookie
+    setRefreshTokenCookie(res, refreshToken);
 
     // Create a default project for the user
     const project = new Project({
@@ -71,11 +91,10 @@ export const registerUser = async (req, res) => {
         email: user.email
       },
       token,
-      refreshToken,
       defaultApiKey: apiKey.key
     });
   } catch (error) {
-    console.log(error);
+    console.error('Registration error:', error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -100,9 +119,12 @@ export const loginUser = async (req, res) => {
     const token = generateAuthToken(user);
     const refreshToken = generateRefreshToken(user);
     
-    // Save refresh token to user
-    user.refreshToken = refreshToken;
+    // Save refresh token to user and increment tokenVersion
+    user.tokenVersion += 1;
     await user.save();
+
+    // Set refresh token in cookie
+    setRefreshTokenCookie(res, refreshToken);
 
     res.json({
       user: {
@@ -110,32 +132,48 @@ export const loginUser = async (req, res) => {
         username: user.username,
         email: user.email
       },
-      token,
-      refreshToken
+      token
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(400).json({ error: error.message });
   }
 };
 
 export const refreshToken = async (req, res) => {
   try {
-    const user = req.user;
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(401).json({ error: 'Refresh token required' });
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findById(decoded.id);
     
+    if (!user || user.tokenVersion !== decoded.version) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+
     // Generate new tokens
     const token = generateAuthToken(user);
-    const refreshToken = generateRefreshToken(user);
+    const newRefreshToken = generateRefreshToken(user);
     
-    // Save new refresh token to user
-    user.refreshToken = refreshToken;
+    // Update token version and save
+    user.tokenVersion += 1;
     await user.save();
 
+    // Set new refresh token in cookie
+    setRefreshTokenCookie(res, newRefreshToken);
+
     res.json({
-      token,
-      refreshToken
+      token
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Refresh token error:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Refresh token expired' });
+    }
+    res.status(401).json({ error: 'Invalid refresh token' });
   }
 };
 
@@ -143,12 +181,21 @@ export const logoutUser = async (req, res) => {
   try {
     const user = req.user;
     
-    // Remove refresh token
-    user.refreshToken = undefined;
+    // Increment token version to invalidate all refresh tokens
+    user.tokenVersion += 1;
     await user.save();
+
+    // Clear refresh token cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api/auth/refresh-token'
+    });
 
     res.json({ message: 'Logged out successfully' });
   } catch (error) {
+    console.error('Logout error:', error);
     res.status(400).json({ error: error.message });
   }
 };

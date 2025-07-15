@@ -10,7 +10,7 @@ export const authenticateUser = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    const user = await User.findById(decoded.id).select('-password -refreshToken');
+    const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       return res.status(401).json({ error: 'User not found' });
     }
@@ -27,18 +27,15 @@ export const authenticateUser = async (req, res, next) => {
 
 export const authenticateRefreshToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
       return res.status(401).json({ error: 'Refresh token required' });
     }
 
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    const user = await User.findOne({ 
-      _id: decoded.id, 
-      refreshToken: refreshToken 
-    }).select('-password');
-
-    if (!user) {
+    const user = await User.findById(decoded.id);
+    
+    if (!user || user.tokenVersion !== decoded.version) {
       return res.status(401).json({ error: 'Invalid refresh token' });
     }
 
