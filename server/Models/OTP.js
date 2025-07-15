@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 const otpSchema = new mongoose.Schema({
   project: {
     type: mongoose.Schema.Types.ObjectId,

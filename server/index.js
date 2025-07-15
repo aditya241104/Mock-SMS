@@ -3,16 +3,22 @@ dotenv.config({ path: '../.env' });
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
-
+import authRoutes from './Routes/authRoutes.js';
+import apiKeyRoutes from './Routes/apiKeyRoutes.js';
+import projectsRoutes from './Routes/projectsRoutes.js';
 const app = express();
 
 const PORT = process.env.PORT ;
+
 app.use(express.json());
 // CORS config
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
 }));
+app.use('/api/auth',authRoutes);
+app.use('/api/project',projectsRoutes);
+app.use('/api/apikey',apiKeyRoutes);
 connectDB();
 
 app.listen(PORT, () => {

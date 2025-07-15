@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
     minlength: 3,
     maxlength: 30
   },
+    refreshToken: {
+    type: String,
+    select: false // Don't return this field by default
+  },
   email: {
     type: String,
     required: true,

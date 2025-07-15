@@ -1,3 +1,5 @@
+import mongoose from 'mongoose';
+
 const messageSchema = new mongoose.Schema({
   project: {
     type: mongoose.Schema.Types.ObjectId,
