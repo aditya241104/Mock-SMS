@@ -11,10 +11,10 @@ import { authenticateUser} from '../Middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/projects', authenticateUser, createProject);
-router.get('/projects', authenticateUser, getUserProjects);
-router.get('/projects/:id', authenticateUser, getProject);
-router.put('/projects/:id', authenticateUser, updateProject);
-router.delete('/projects/:id', authenticateUser, deleteProject);
+router.post('/', authenticateUser, createProject);
+router.get('/', authenticateUser, getUserProjects);
+router.get('/:id', authenticateUser, getProject);
+router.put('/:id', authenticateUser, updateProject);
+router.delete('/:id', authenticateUser, deleteProject);
 
 export default router;

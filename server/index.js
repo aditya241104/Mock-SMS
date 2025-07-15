@@ -7,6 +7,7 @@ import authRoutes from './Routes/authRoutes.js';
 import apiKeyRoutes from './Routes/apiKeyRoutes.js';
 import projectsRoutes from './Routes/projectsRoutes.js';
 import cookieParser from 'cookie-parser';
+import messageRoutes from './Routes/messageRoutes.js';
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.use(cors({
 app.use('/api/auth',authRoutes);
 app.use('/api/project',projectsRoutes);
 app.use('/api/apikey',apiKeyRoutes);
+app.use('/api/message', messageRoutes);
+
 connectDB();
 
 app.listen(PORT, () => {
