@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
-import Dashboard from './Pages/DashBoard';
+import Dashboard from './Pages/Dashboard';
 import ProtectedRoute from './Routes/ProtectedRoute';
 import AuthGuard from './Auth/AuthGuard';
 import MessagesPage from './Pages/MessagesPage';
