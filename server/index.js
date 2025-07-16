@@ -17,7 +17,8 @@ app.use(cookieParser());
 app.use(express.json());
 // CORS config
 app.use(cors({
-  origin: '*'
+  origin: 'https://mock-sms.vercel.app', // your frontend's URL
+  credentials: true
 }));
 app.use('/api/auth',authRoutes);
 app.use('/api/project',projectsRoutes);
