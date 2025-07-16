@@ -25,6 +25,8 @@ import {
   ArrowRight,
   ArrowLeft,
   Download,
+  Archive,
+  RotateCcw,
 } from 'lucide-react';
 import ApiService from '../services/ApiService';
 import MessageList from '../components/MessagePage/MessageList';
@@ -111,12 +113,12 @@ const MessagesPage = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'sent': return 'text-green-700 bg-green-100 border-green-200';
-      case 'delivered': return 'text-blue-700 bg-blue-100 border-blue-200';
-      case 'failed': return 'text-red-700 bg-red-100 border-red-200';
-      case 'queued': return 'text-yellow-700 bg-yellow-100 border-yellow-200';
-      case 'received': return 'text-purple-700 bg-purple-100 border-purple-200';
-      default: return 'text-gray-700 bg-gray-100 border-gray-200';
+      case 'sent': return 'text-emerald-800 bg-emerald-50 border-emerald-200';
+      case 'delivered': return 'text-blue-800 bg-blue-50 border-blue-200';
+      case 'failed': return 'text-red-800 bg-red-50 border-red-200';
+      case 'queued': return 'text-amber-800 bg-amber-50 border-amber-200';
+      case 'received': return 'text-violet-800 bg-violet-50 border-violet-200';
+      default: return 'text-slate-800 bg-slate-50 border-slate-200';
     }
   };
 
@@ -139,7 +141,7 @@ const MessagesPage = () => {
     
     if (diffDays === 1) return 'Today';
     if (diffDays === 2) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays} days ago`;
+    if (diffDays <= 7) return `${diffDays}d ago`;
     
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
@@ -187,59 +189,59 @@ const MessagesPage = () => {
     if (message.metadata?.isOTP) {
       return <Hash className="w-4 h-4 text-orange-600" />;
     }
-    return <MessageSquare className="w-4 h-4 text-gray-600" />;
+    return <MessageSquare className="w-4 h-4 text-slate-600" />;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-            <Loader className="w-8 h-8 animate-spin text-blue-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-200 mb-4">
+            <Loader className="w-8 h-8 animate-spin text-slate-600" />
           </div>
-          <p className="text-gray-600 text-lg">Loading messages...</p>
+          <p className="text-slate-600 text-lg font-medium">Loading messages...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
                   <MessageSquare className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-semibold text-gray-900">SMS Inbox</h1>
-                  <p className="text-sm text-gray-500">
-                    {filteredMessages.length} message{filteredMessages.length !== 1 ? 's' : ''}
+                  <h1 className="text-xl font-bold text-slate-900">Messages</h1>
+                  <p className="text-sm text-slate-500">
+                    {filteredMessages.length} total
                   </p>
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <button
                 onClick={fetchMessages}
                 disabled={loading}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                className="inline-flex items-center px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 transition-colors"
               >
-                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                <RotateCcw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
               
               {selectedMessages.length > 0 && (
                 <button
                   onClick={handleBulkDelete}
-                  className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700"
+                  className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Selected ({selectedMessages.length})
+                  Delete {selectedMessages.length}
                 </button>
               )}
               
@@ -247,12 +249,12 @@ const MessagesPage = () => {
                 <button
                   onClick={handleClearAllMessages}
                   disabled={clearingAll}
-                  className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                  className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
                 >
                   {clearingAll ? (
                     <Loader className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <Trash2 className="w-4 h-4 mr-2" />
+                    <Archive className="w-4 h-4 mr-2" />
                   )}
                   Clear All
                 </button>
@@ -262,35 +264,38 @@ const MessagesPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-          <div className="p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-              <div className="relative flex-1 max-w-lg">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+          <div className="p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Search messages, phone numbers..."
+                  placeholder="Search messages or numbers..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 />
               </div>
               
               <div className="flex items-center space-x-3">
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  <option value="sent">Sent</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="failed">Failed</option>
-                  <option value="queued">Queued</option>
-                  <option value="received">Received</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="appearance-none px-4 py-2.5 pr-8 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-700 font-medium"
+                  >
+                    <option value="all">All messages</option>
+                    <option value="sent">Sent</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="failed">Failed</option>
+                    <option value="queued">Queued</option>
+                    <option value="received">Received</option>
+                  </select>
+                  <Filter className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>
@@ -298,10 +303,13 @@ const MessagesPage = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-              <span className="text-red-800">{error}</span>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-red-800">Something went wrong</p>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+              </div>
             </div>
           </div>
         )}
