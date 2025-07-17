@@ -9,7 +9,7 @@
 
 ## 🔗 Live Demo
 
-👉 **[Open MockSMS Dashboard](https://mock-sms.vercel.app/dashboard)**
+👉 **[Open MockSMS Dashboard](https://mock-sms.vercel.app/)**
 
 > ⚠️ Hosted on free Render + Vercel tiers. May take a few seconds to wake up on first request.
 
@@ -17,7 +17,7 @@
 
 ## 🚀 Quick Walkthrough
 
-1. **Visit the [Live Dashboard](https://mock-sms.vercel.app/dashboard)**
+1. **Visit the [Live Dashboard](https://mock-sms.vercel.app/)**
 2. **Create an account** and log in
 3. A **default project** will be created automatically
 4. Go to **"Projects → API Keys"** to view your API key
@@ -137,7 +137,7 @@ mocksms/
 ### 📦 Clone the Repo
 
 ```bash
-git clone https://github.com/your-username/mocksms.git
+git clone [https://github.com/your-username/mocksms.git](https://github.com/aditya241104/Mock-SMS/tree/main)
 cd mocksms
 ```
 
