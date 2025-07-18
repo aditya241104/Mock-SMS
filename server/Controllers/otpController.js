@@ -55,6 +55,7 @@ export const verifyOTP = async (req, res) => {
     // For API key authenticated requests
     const project = req.project || req.user.project;
     const normalizedPhone = isValidIndianMobile(phone);
+    //normlized phone
     if (!normalizedPhone) {
       return res.status(400).json({ error: 'Invalid Indian mobile number' });
     }
