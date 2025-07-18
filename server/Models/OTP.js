@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { isValidIndianMobile } from '../utils/phoneValidator.js';
 
 const otpSchema = new mongoose.Schema({
   project: {
@@ -9,7 +10,13 @@ const otpSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return isValidIndianMobile(v);
+      },
+      message: props => `${props.value} is not a valid Indian mobile number!`
+    }
   },
   code: {
     type: String,

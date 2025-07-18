@@ -3,6 +3,7 @@ import OTP from '../Models/OTP.js';
 import Project from '../Models/Project.js';
 import ApiKey from '../Models/ApiKey.js';
 import mongoose from 'mongoose';
+import { isValidIndianMobile } from '../utils/phoneValidator.js';
 
 // Send a message (API key authenticated)
 export const sendMessage = async (req, res) => {
@@ -13,10 +14,16 @@ export const sendMessage = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Validate and normalize the Indian mobile number
+    const normalizedTo = isValidIndianMobile(to);
+    if (!normalizedTo) {
+      return res.status(400).json({ error: 'Invalid Indian mobile number' });
+    }
+
     const message = new Message({
       project: req.project._id,
       from,
-      to,
+      to: normalizedTo, // store the normalized number
       body,
       direction: 'outbound',
       status: 'sent',

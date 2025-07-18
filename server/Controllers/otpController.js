@@ -4,22 +4,25 @@ import crypto from 'crypto';
 
 export const sendOTP = async (req, res) => {
   try {
-    const { phone, purpose = 'verification' } = req.body;
-    
-    // For API key authenticated requests
-    const project = req.project || req.user.project;
-    
-    if (!project) {
-      return res.status(400).json({ error: 'Project context required' });
+    const { phone, purpose } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone number is required' });
     }
 
-    // Generate a 6-digit code
-    const code = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+    // Validate and normalize the Indian mobile number
+    const normalizedPhone = isValidIndianMobile(phone);
+    if (!normalizedPhone) {
+      return res.status(400).json({ error: 'Invalid Indian mobile number' });
+    }
+
+    // Generate OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
 
     const otp = new OTP({
-      project: project._id,
-      phone,
+      project: req.project._id,
+      phone: normalizedPhone, // store the normalized number
       code,
       purpose,
       expiresAt
@@ -51,7 +54,10 @@ export const verifyOTP = async (req, res) => {
     
     // For API key authenticated requests
     const project = req.project || req.user.project;
-    
+    const normalizedPhone = isValidIndianMobile(phone);
+    if (!normalizedPhone) {
+      return res.status(400).json({ error: 'Invalid Indian mobile number' });
+    }
     if (!project) {
       return res.status(400).json({ error: 'Project context required' });
     }
